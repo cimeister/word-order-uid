@@ -1155,7 +1155,7 @@ rule gc_revisit:
         "evaluation/gc_revisit_data/{num_toks}/{model_seed}/{language}-{variant}.pt"
     resources:
         time=240,
-        slurm_extra="--gpus=1 --gres=gpumem:10G"
+        slurm_extra="--gpus=1 --gres=gpumem:10G --mem-per-cpu=10G"
     log:
         f"{LOG_DIR}/log_gc_revisit_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
