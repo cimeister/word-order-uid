@@ -1171,7 +1171,7 @@ rule gc_revisit:
         module load gcc/6.3.0
         module load python_gpu/3.8.5 hdf5 eth_proxy
         module load geos libspatialindex
-        mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        mkdir -p {GC_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
         cd data
         python gc_revisit.py \
             --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
