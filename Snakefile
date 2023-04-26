@@ -1154,16 +1154,8 @@ rule gc_revisit:
     output:
         "evaluation/gc_revisit_data/{num_toks}/{model_seed}/{language}-{variant}.pt"
     resources:
-        time="4:00",
-        runtime=240,
-        num_cpus=1,
-        num_gpus=1,
-        select="select[gpu_mtotal0>=10000]",
-        rusage="rusage[mem=30000,ngpus_excl_p=1]",
-        mem_per_cpu="30g",
-        mem_per_gpu="10g",
-        mem_mb=10000,
-        slurm_extra="--gres=gpu:1"
+        time=240,
+        slurm_extra="--gpus=1 --gres=gpumem:10G"
     log:
         f"{LOG_DIR}/log_gc_revisit_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
