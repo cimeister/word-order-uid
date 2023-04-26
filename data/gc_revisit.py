@@ -60,7 +60,7 @@ if __name__ == "__main__":
             surprisals.append(-1 * out["positional_scores"][-1])
 
             # append entropies
-            ent = entropy(logprobs[0, :, :], axis=1)
+            ent = entropy(logprobs[0, :, :].detach().numpy(), axis=1)
             entropies.append(ent)
 
             # INFO
