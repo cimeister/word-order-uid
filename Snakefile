@@ -1156,7 +1156,8 @@ rule gc_revisit:
     resources:
         time=240,
         mem_mb_per_cpu=10000,
-        slurm_extra="--gpus=1 --gres=gpumem:10G"
+        slurm_extra="--gpus=1 --gres=gpumem:10G",
+        slurm_account="INFK-Cotterell-All"
     log:
         f"{LOG_DIR}/log_gc_revisit_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
