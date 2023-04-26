@@ -44,6 +44,7 @@ CF_BPE_DATA_DIR_diff_sizes = "data/wiki40b-txt-cf-bpe-diff-sizes"
 PREPROCESSED_DATA_DIR_diff_sizes = "data/data-bin-cf-bpe-diff-sizes"         
 CHECKPOINT_DIR_diff_sizes = "data/checkpoint-cf-bpe-diff-sizes"              
 EVAL_RESULTS_DIR_diff_sizes = "evaluation/perps-cf-diff-sizes"               
+GC_RESULTS_DIR_diff_sizes = "evaluation/gc_revisit_data"               
 
 # for experiments with cc100 data
 RAW_DATA_DIR_cc100 = "data/cc100/txt"
@@ -1142,3 +1143,39 @@ rule measure_entropy_wiki40b:
         dfs = [pd.read_csv(f) for f in filenames]
         df = pd.concat(dfs)
         df.to_csv("counterfactual/wiki40b-entropy/summary.csv", index=False)
+
+
+### G&C Replication
+rule gc_revisit:
+    input:
+        "data/checkpoint-cf-bpe-diff-sizes/{num_toks}/{model_seed}/{language}/{variant}/checkpoint_best.pt",
+        "data/wiki40b-txt-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/{language}.test",
+        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
+    output:
+        "evaluation/gc_revisit_data/{num_toks}/{model_seed}/{language}-{variant}.pt"
+    resources:
+        time="4:00",
+        runtime=240,
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="30g",
+        mem_per_gpu="10g",
+        mem_mb=10000,
+        slurm_extra="--gres=gpu:1"
+    log:
+        f"{LOG_DIR}/log_gc_revisit_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python gc_revisit.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{GC_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt
+        """
