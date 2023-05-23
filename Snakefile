@@ -1067,7 +1067,7 @@ rule postprocess_diff_sizes_all:
 
 rule postprocess_diff_sizes_real_20m:
     input:
-        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full.csv", 
+        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_results.csv", 
         language=languages, 
         variant=["REAL_REAL"], 
         num_toks=[20000000], 

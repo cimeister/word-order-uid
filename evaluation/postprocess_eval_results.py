@@ -227,7 +227,7 @@ def postprocess(args):
     df = make_df(
         logprob_lists,
         token_lists,
-        lang=lang,
+        lang=args.language,
         variant=args.variant,
         num_toks=args.num_toks,
         model_seed=args.model_seed,
@@ -499,7 +499,6 @@ def postprocess(args):
     #     )
     # )
 
-    df.to_csv(args.inputfile.replace(".pt", "_full.csv"), index=False)
     df_summary.to_csv(args.inputfile.replace(".pt", ".csv"), index=False)
 
     # return df
