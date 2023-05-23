@@ -1013,7 +1013,8 @@ rule postprocess_diff_sizes:
     input:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
     output:
-        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv"
+        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv",
+        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full.csv",
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1063,6 +1064,14 @@ rule postprocess_diff_sizes_all:
         dfs = [pd.read_csv(f) for f in filenames]
         df = pd.concat(dfs)
         df.to_csv("evaluation/perps-cf-diff-sizes/results_summary.csv", index=False)
+
+rule postprocess_diff_sizes_real_20m:
+    input:
+        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv", 
+        language=languages, 
+        variant=["REAL_REAL"], 
+        num_toks=[20000000], 
+        model_seed=[1])
 
 
 ######################################

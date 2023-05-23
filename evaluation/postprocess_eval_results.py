@@ -249,6 +249,7 @@ def postprocess(args):
     print(df.info())
 
     # df.to_feather(args.out_file)
+    df.to_csv(args.inputfile.replace(".pt", "_full_results.csv"), index=False)
 
     df["sentence_len"] = (
         df.groupby(["document_id", "sentence_id"], observed=True)
@@ -498,6 +499,7 @@ def postprocess(args):
     #     )
     # )
 
+    df.to_csv(args.inputfile.replace(".pt", "_full.csv"), index=False)
     df_summary.to_csv(args.inputfile.replace(".pt", ".csv"), index=False)
 
     # return df
