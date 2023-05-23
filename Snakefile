@@ -1014,7 +1014,7 @@ rule postprocess_diff_sizes:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
     output:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv",
-        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full.csv",
+        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full_results.csv",
     resources:
         time="4:00",
         time_slurm="04:00:00",
