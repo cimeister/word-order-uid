@@ -1075,6 +1075,158 @@ rule postprocess_diff_sizes_real_20m:
 
 
 ######################################
+### sentence level
+######################################
+
+PREPROCESSED_DATA_DIR_sentlevel = "data/data-bin-cf-bpe-sentlevel"
+CF_BPE_DATA_DIR_sentlevel = "data/wiki40b-txt-cf-bpe-sentlevel"
+CHECKPOINT_DIR_sentlevel = "data/checkpoint-cf-bpe-sentlevel"
+EVAL_RESULTS_DIR_sentlevel = "evaluation/perps-cf-sentlevel"
+
+# convert doc level to sentence level
+rule convert_doc_to_sent:
+    input:
+        expand(f"{CF_BPE_DATA_DIR_diff_sizes}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
+    output:
+        expand(f"{CF_BPE_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
+    log:
+    resources:
+        time="01:00",
+        time_slurm="01:00:00",
+        num_cpus=1,
+        num_gpus=0,
+        select="",
+        rusage="rusage[mem=2000,ngpus_excl_p=0]",
+        mem_per_cpu="2g",
+        mem_per_gpu=0,
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}
+        cd data
+        python convert_doc_to_sent.py \
+            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
+            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
+            --language {{wildcards.language}}
+        python convert_doc_to_sent.py \
+            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --language {{wildcards.language}}
+        python convert_doc_to_sent.py \
+            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
+            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
+            --language {{wildcards.language}}
+        """
+
+# binarize for fairseq training
+rule prepare_fairseq_data_sentlevel:
+    input:
+        expand(f"{CF_BPE_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
+    output:
+        expand(f"{PREPROCESSED_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{part}}.bin", part=parts),
+    resources:
+        time="04:00",
+        time_slurm="04:00:00",
+        num_cpus=1,
+        num_gpus=0,
+        select="",
+        rusage="rusage[mem=8000,ngpus_excl_p=0]",
+        mem_per_cpu="8g",
+        mem_per_gpu=0,
+    log:
+        f"{LOG_DIR}/log_preprocess_{{language}}_{{variant}}_{{num_toks}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        rm -r {PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}
+        mkdir -p {PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}
+        fairseq-preprocess \
+            --only-source \
+            --trainpref {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
+            --validpref {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
+            --testpref {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --destdir {PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --bpe fastbpe \
+            --workers 20 
+        """
+
+# train the models
+rule train_language_models_sentlevel:
+    input:
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/train.bin",
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/valid.bin",
+    output:
+        f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt"
+    resources:
+        time="24:00",
+        time_slurm="24:00:00",
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="30GB",
+        mem_per_gpu="10GB",
+        mem_mb=30000,
+        runtime=1440,
+    log:
+        f"{LOG_DIR}/log_train_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}}
+        cd data
+        bash train_model_transformer_sentlevel.sh \
+            {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}}
+        """
+
+rule eval_language_models_sentlevel:
+    input:
+        f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt",
+        f"data/wiki40b-txt-cf-bpe-diff-sizes/{{num_toks}}/{{language}}/{{variant}}/{{language}}.test",
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin"
+    output:
+        f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
+    resources:
+        time="4:00",
+        time_slurm="04:00:00",
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="30g",
+        mem_per_gpu="10g",
+    log:
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python per_example_perp_sentlevel.py \
+            {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt
+        """
+
+rule sentlevel_all:
+    input:
+        expand(f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
+        num_toks=[20000000], 
+        model_seed=[1],
+        language=languages,
+        variant=["REAL_REAL"])
+
+######################################
 ### dependency length measurement
 ######################################
 
