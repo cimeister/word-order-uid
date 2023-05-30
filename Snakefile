@@ -1176,10 +1176,10 @@ rule train_language_models_sentlevel:
         # rusage="rusage[mem=30000,ngpus_excl_p=1]",
         # mem_per_cpu="30GB",
         # mem_per_gpu="10GB",
-        mem_mb_per_cpu=16000,
+        # mem_mb_per_cpu=16000,
         # mem_mb_per_gpu=10000,
-        runtime=1440,
-        slurm_extra="--gpus=1 --gres=gpumem:10000",
+        # runtime=1440,
+        slurm_extra="-n 1 --cpus-per-task=1 --mem-per-cpu=1024 --gpus=1 --gres=gpumem:10000 --time=24:00:00",
         # slurm_account="gpu/ls_infk",
     log:
         f"{LOG_DIR}/log_train_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
