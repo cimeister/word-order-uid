@@ -1100,7 +1100,7 @@ rule convert_doc_to_sent:
         mem_per_cpu="2g",
         mem_per_gpu=0,
         runtime=60,
-        mem_mb=2000,
+        mem_mb_per_cpu=2000,
     shell:
         f"""
         module load gcc/6.3.0
@@ -1138,7 +1138,7 @@ rule prepare_fairseq_data_sentlevel:
         mem_per_cpu="8g",
         mem_per_gpu=0,
         runtime=240,
-        mem_mb=8000,
+        mem_mb_per_cpu=8000,
     log:
         f"{LOG_DIR}/log_preprocess_{{language}}_{{variant}}_{{num_toks}}.out"
     shell:
@@ -1174,8 +1174,9 @@ rule train_language_models_sentlevel:
         rusage="rusage[mem=30000,ngpus_excl_p=1]",
         mem_per_cpu="30GB",
         mem_per_gpu="10GB",
-        mem_mb=30000,
+        mem_mb_per_cpu=30000,
         runtime=1440,
+        slurm_extra="--gres=gpu:1"
     log:
         f"{LOG_DIR}/log_train_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
@@ -1206,8 +1207,9 @@ rule eval_language_models_sentlevel:
         rusage="rusage[mem=30000,ngpus_excl_p=1]",
         mem_per_cpu="30g",
         mem_per_gpu="10g",
-        mem_mb=16000,
+        mem_mb_per_cpu=16000,
         runtime=120,
+        slurm_extra="--gres=gpu:1,
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
