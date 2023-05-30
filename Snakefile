@@ -1099,6 +1099,8 @@ rule convert_doc_to_sent:
         rusage="rusage[mem=2000,ngpus_excl_p=0]",
         mem_per_cpu="2g",
         mem_per_gpu=0,
+        runtime=60,
+        mem_mb=2000,
     shell:
         f"""
         module load gcc/6.3.0
@@ -1135,6 +1137,8 @@ rule prepare_fairseq_data_sentlevel:
         rusage="rusage[mem=8000,ngpus_excl_p=0]",
         mem_per_cpu="8g",
         mem_per_gpu=0,
+        runtime=240,
+        mem_mb=8000,
     log:
         f"{LOG_DIR}/log_preprocess_{{language}}_{{variant}}_{{num_toks}}.out"
     shell:
@@ -1202,6 +1206,8 @@ rule eval_language_models_sentlevel:
         rusage="rusage[mem=30000,ngpus_excl_p=1]",
         mem_per_cpu="30g",
         mem_per_gpu="10g",
+        mem_mb=16000,
+        runtime=120,
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
