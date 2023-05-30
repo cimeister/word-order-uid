@@ -1209,7 +1209,7 @@ rule eval_language_models_sentlevel:
         mem_per_gpu="10g",
         mem_mb_per_cpu=16000,
         runtime=120,
-        slurm_extra="--gres=gpu:1,
+        slurm_extra="--gres=gpu:1"
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
