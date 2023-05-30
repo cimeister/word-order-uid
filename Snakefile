@@ -1109,16 +1109,16 @@ rule convert_doc_to_sent:
         mkdir -p {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}
         cd data
         python convert_doc_to_sent.py \
-            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
-            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
+            --inputfile {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
+            --outputfile {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.train \
             --language {{wildcards.language}}
         python convert_doc_to_sent.py \
-            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
-            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --inputfile {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --outputfile {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --language {{wildcards.language}}
         python convert_doc_to_sent.py \
-            --inputfile {CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
-            --outputfile {CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
+            --inputfile {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
+            --outputfile {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.valid \
             --language {{wildcards.language}}
         """
 
