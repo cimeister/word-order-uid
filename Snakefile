@@ -1180,7 +1180,7 @@ rule train_language_models_sentlevel:
         mem_mb_per_gpu=10000,
         runtime=1440,
         slurm_extra="--gres=gpu:1",
-        slurm_account="public",
+        slurm_account="s_stud_infk",
     log:
         f"{LOG_DIR}/log_train_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
