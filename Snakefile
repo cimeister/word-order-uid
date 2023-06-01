@@ -1168,17 +1168,19 @@ rule train_language_models_sentlevel:
     output:
         f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt"
     resources:
-        # time="24:00",
+        time="24:00",
         # time_slurm="24:00:00",
-        # num_cpus=1,
+        num_cpus=1,
         # num_gpus=1,
-        # select="select[gpu_mtotal0>=10000]",
-        # rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=10000,ngpus_excl_p=1]",
         # mem_per_cpu="30GB",
         # mem_per_gpu="10GB",
         # mem_mb_per_cpu=4000,
         # mem_mb_per_gpu=10000,
         runtime=1440,
+        gpus=1,
+        gpumem="10GB",
         slurm_extra="-n 1 --gpus=1 --gres=gpumem:10GB",
         # slurm_account="gpu/ls_infk",
     log:
