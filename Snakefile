@@ -1168,20 +1168,17 @@ rule train_language_models_sentlevel:
     output:
         f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt"
     resources:
-        time="24:00",
-        # time_slurm="24:00:00",
         num_cpus=1,
-        # num_gpus=1,
-        select="select[gpu_mtotal0>=20000]",
-        rusage="rusage[mem=20000,ngpus_excl_p=1]",
-        # mem_per_cpu="30GB",
-        # mem_per_gpu="10GB",
+        num_gpus=1,
+        runtime=1440,
+        mem_per_cpu="30GB",
+        mem_per_gpu="10GB",
+        # select="select[gpu_mtotal0>=10000]",
+        # rusage="rusage[mem=10000,ngpus_excl_p=1]",
+        # time="24:00",
         # mem_mb_per_cpu=4000,
         # mem_mb_per_gpu=10000,
-        runtime=1440,
-        gpus=1,
-        gpumem="20GB",
-        slurm_extra="-n 1 --gpus=1 --gres=gpumem:20GB",
+        # slurm_extra="-n 1 --gpus=1 --gres=gpumem:20GB",
         # slurm_account="gpu/ls_infk",
     log:
         f"{LOG_DIR}/log_train_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
@@ -1205,18 +1202,18 @@ rule eval_language_models_sentlevel:
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
     resources:
-        time="4:00",
-        time_slurm="04:00:00",
         num_cpus=1,
         num_gpus=1,
-        select="select[gpu_mtotal0>=10000]",
-        rusage="rusage[mem=10000,ngpus_excl_p=1]",
-        mem_per_cpu="30g",
-        mem_per_gpu="10g",
-        mem_mb_per_cpu=16000,
+        mem_per_cpu="10G",
+        mem_per_gpu="10G",
         runtime=120,
-        slurm_extra="--gres=gpu:1",
-        slurm_account="public",
+        # time="4:00",
+        # time_slurm="04:00:00",
+        # select="select[gpu_mtotal0>=10000]",
+        # rusage="rusage[mem=10000,ngpus_excl_p=1]",
+        # mem_mb_per_cpu=16000,
+        # slurm_extra="--gres=gpu:1",
+        # slurm_account="public",
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
