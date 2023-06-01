@@ -1210,7 +1210,7 @@ rule eval_language_models_sentlevel:
         num_cpus=1,
         num_gpus=1,
         select="select[gpu_mtotal0>=10000]",
-        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        rusage="rusage[mem=10000,ngpus_excl_p=1]",
         mem_per_cpu="30g",
         mem_per_gpu="10g",
         mem_mb_per_cpu=16000,
