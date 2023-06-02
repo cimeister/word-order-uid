@@ -974,7 +974,7 @@ rule train_language_models_diff_sizes:
         cd data
         bash train_model_transformer.sh \
             {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{CHECKPOINT_DIR}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} > {{log}}
+            {BASE_DIR}/{CHECKPOINT_DIR}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_diff_sizes:
@@ -1009,7 +1009,7 @@ rule eval_language_models_diff_sizes:
             --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
             --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
-            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt > {{log}}
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_diff_sizes_adaptive:
@@ -1045,7 +1045,7 @@ rule eval_language_models_diff_sizes_adaptive:
             --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
-            --adapt_lr {{wildcards.lr}} > {{log}}
+            --adapt_lr {{wildcards.lr}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_diff_sizes_all:
@@ -1250,7 +1250,7 @@ rule train_language_models_sentlevel:
         cd data
         bash train_model_transformer_sentlevel.sh \
             {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} > {{log}}
+            {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_sentlevel:
@@ -1289,7 +1289,7 @@ rule eval_language_models_sentlevel:
             --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
-            --lang {{wildcards.language}} > {{log}}
+            --lang {{wildcards.language}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_sentlevel_adaptive:
@@ -1329,7 +1329,7 @@ rule eval_language_models_sentlevel_adaptive:
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
             --lang {{wildcards.language}} \
-            --adaptive_lr {{wildcards.lr}} > {{log}}
+            --adaptive_lr {{wildcards.lr}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_sentlevel_all:
