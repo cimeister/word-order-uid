@@ -1329,7 +1329,7 @@ rule eval_language_models_sentlevel_adaptive:
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
             --lang {{wildcards.language}} \
-            --adaptive_lr {{wildcards.lr}} > {BASE_DIR}/{{log}}
+            --adapt_lr {{wildcards.lr}} > {BASE_DIR}/{{log}}
         """
 
 rule eval_language_models_sentlevel_all:
