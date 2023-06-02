@@ -991,8 +991,9 @@ rule eval_language_models_diff_sizes:
         num_gpus=1,
         select="select[gpu_mtotal0>=10000]",
         rusage="rusage[mem=30000,ngpus_excl_p=1]",
-        mem_per_cpu="30g",
+        mem_per_cpu="10g",
         mem_per_gpu="10g",
+        runtime=240,
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
@@ -1003,11 +1004,59 @@ rule eval_language_models_diff_sizes:
         mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
         cd data
         python per_example_perp.py \
-            {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
-            {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt
         """
+
+rule eval_language_models_diff_sizes_adaptive:
+    input:
+        "data/checkpoint-cf-bpe-diff-sizes/{num_toks}/{model_seed}/{language}/{variant}/checkpoint_best.pt",
+        "data/wiki40b-txt-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/{language}.test",
+        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
+    output:
+        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/adaptive/{lr}/{language}-{variant}.pt"
+    resources:
+        time="4:00",
+        time_slurm="04:00:00",
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="10g",
+        mem_per_gpu="10g",
+        runtime=240,
+    log:
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/adaptive/{{wildcards.lr}}
+        cd data
+        python per_example_perp.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
+            --adapt_lr {{wildcards.lr}}
+        """
+
+rule eval_language_models_diff_sizes_all:
+    input:
+        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt",
+        num_toks=[20000000], 
+        model_seed=[1], 
+        language=languages, 
+        variant=["REAL_REAL"]),
+        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/adaptive/{lr}/{language}-{variant}.pt", 
+        num_toks=[20000000], 
+        model_seed=[1], 
+        language=languages, 
+        variant=["REAL_REAL"], 
+        lr=[0.02, 0.2, 2, 20])
 
 rule postprocess_diff_sizes:
     input:
@@ -1071,7 +1120,13 @@ rule postprocess_diff_sizes_real_20m:
         language=languages, 
         variant=["REAL_REAL"], 
         num_toks=[20000000], 
-        model_seed=[1])
+        model_seed=[1]),
+        expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full_results.csv", 
+        language=languages, 
+        variant=["REAL_REAL"], 
+        num_toks=[20000000], 
+        model_seed=[1],
+        lr=[0.02, 0.2, 2, 20])
 
 
 ######################################
@@ -1224,19 +1279,64 @@ rule eval_language_models_sentlevel:
         mkdir -p {EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
         cd data
         python per_example_perp_sentlevel.py \
-            {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
-            {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
-            {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
+            --lang {{wildcards.language}} > {log}
         """
 
-rule sentlevel_all:
+rule eval_language_models_sentlevel_adaptive:
+    input:
+        f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt",
+        f"data/wiki40b-txt-cf-bpe-diff-sizes/{{num_toks}}/{{language}}/{{variant}}/{{language}}.test",
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin"
+    output:
+        f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/adaptive/{{lr}}/{{language}}-{{variant}}.pt"
+    resources:
+        num_cpus=1,
+        num_gpus=1,
+        mem_per_cpu="10G",
+        mem_per_gpu="10G",
+        runtime=120,
+        # time="4:00",
+        # time_slurm="04:00:00",
+        # select="select[gpu_mtotal0>=10000]",
+        # rusage="rusage[mem=10000,ngpus_excl_p=1]",
+        # mem_mb_per_cpu=16000,
+        # slurm_extra="--gres=gpu:1",
+        # slurm_account="public",
+    log:
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/adaptive/{{wildcards.lr}}
+        cd data
+        python per_example_perp_sentlevel.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
+            --lang {{wildcards.language}} \
+            --adaptive_lr {{wildcards.lr}} > {log}
+        """
+
+rule eval_language_models_sentlevel_all:
     input:
         expand(f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
         num_toks=[20000000], 
         model_seed=[1],
         language=languages,
-        variant=["REAL_REAL"])
+        variant=["REAL_REAL"]),
+        expand(f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/adaptive/{{lr}}/{{language}}-{{variant}}.pt", 
+        num_toks=[20000000], 
+        model_seed=[1],
+        lr=[0.02, 0.2, 2, 20],
+        language=languages,
+        variant=["REAL_REAL"]),
 
 ######################################
 ### dependency length measurement
