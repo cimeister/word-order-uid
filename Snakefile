@@ -984,6 +984,8 @@ rule eval_language_models_diff_sizes:
         "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
     output:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
+    wildcard_constraints:
+        num_toks="\d+"
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1017,6 +1019,8 @@ rule eval_language_models_diff_sizes_adaptive:
         "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
     output:
         "evaluation/perps-cf-diff-sizes/adaptive/{lr}/{num_toks}/{model_seed}/{language}-{variant}.pt"
+    wildcard_constraints:
+        num_toks="\d+"
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1256,6 +1260,8 @@ rule eval_language_models_sentlevel:
         f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin"
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
+    wildcard_constraints:
+        num_toks="\d+"
     resources:
         num_cpus=1,
         num_gpus=1,
@@ -1293,6 +1299,8 @@ rule eval_language_models_sentlevel_adaptive:
         f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin"
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
+    wildcard_constraints:
+        num_toks="\d+"
     resources:
         num_cpus=1,
         num_gpus=1,
