@@ -1028,7 +1028,7 @@ rule eval_language_models_diff_sizes_adaptive:
         mem_per_gpu="10g",
         runtime=240,
     log:
-        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_adaptive_{{lr}}.out"
     shell:
         f"""
         module load gcc/6.3.0
@@ -1307,7 +1307,7 @@ rule eval_language_models_sentlevel_adaptive:
         # slurm_extra="--gres=gpu:1",
         # slurm_account="public",
     log:
-        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
+        f"{LOG_DIR}/log_eval_sentlevel_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_adaptive_{{lr}}.out"
     shell:
         f"""
         module load gcc/6.3.0
