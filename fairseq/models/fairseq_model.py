@@ -172,7 +172,7 @@ class BaseFairseqModel(nn.Module):
         if getattr(cfg.generation, "retain_dropout", False):
             kwargs["retain_dropout"] = cfg.generation.retain_dropout
             kwargs["retain_dropout_modules"] = cfg.generation.retain_dropout_modules
-        self.make_generation_fast_(**kwargs)
+        # self.make_generation_fast_(**kwargs)
 
     def make_generation_fast_(self, **kwargs):
         """
@@ -443,11 +443,7 @@ class FairseqMultiModel(BaseFairseqModel):
         return self.decoder(prev_output_tokens, **kwargs)
 
     def load_state_dict(
-        self,
-        state_dict,
-        strict=True,
-        model_cfg=None,
-        args: Optional[Namespace] = None,
+        self, state_dict, strict=True, model_cfg=None, args: Optional[Namespace] = None,
     ):
         """Copies parameters and buffers from *state_dict* into this module and
         its descendants.
