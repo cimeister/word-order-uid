@@ -76,7 +76,7 @@ with open(args.test_file, "r") as f, MosesSentenceSplitter(args.lang) as sent_sp
             lprobs_buff.clear()
             tokens_buff.clear()
             continue
-        for sentence in sent_split(l):
+        for sentence in sent_split([l]):
             if custom_lm_hub.encode(sentence).size(0) > custom_lm_hub.max_positions - 2:
                 sentence = " ".join(sentence.split()[: custom_lm_hub.max_positions - 2])
             out = custom_lm_hub.score(sentence, shorten_method="truncate")
