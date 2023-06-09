@@ -11,7 +11,7 @@ import argparse
 import numpy
 import random
 import torch
-from ..fairseq.models.transformer_lm import TransformerLanguageModel
+from fairseq.models.transformer_lm import TransformerLanguageModel
 from mosestokenizer import MosesTokenizer, MosesSentenceSplitter
 from torch.optim import Adam
 
