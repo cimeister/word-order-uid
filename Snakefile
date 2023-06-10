@@ -1386,7 +1386,7 @@ rule postprocess_gc_all:
     input:
         expand("evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}.csv",
         perps_dir=["perps-cf-diff-sizes", "perps-cf-sentlevel", "perps-cf-diff-sizes/adaptive/0.2", "perps-cf-diff-sizes/adaptive/0.02", "perps-cf-diff-sizes/adaptive/2", "perps-cf-diff-sizes/adaptive/20", "perps-cf-sentlevel/adaptive/0.2", "perps-cf-sentlevel/adaptive/0.02", "perps-cf-sentlevel/adaptive/2", "perps-cf-sentlevel/adaptive/20"],
-        num_toks=[20000000], model_seed=[1], language=langauges, variant=["REAL_REAL"])
+        num_toks=[20000000], model_seed=[1], language=languages, variant=["REAL_REAL"])
 
 ######################################
 ### dependency length measurement
