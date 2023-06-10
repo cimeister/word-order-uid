@@ -224,6 +224,9 @@ def postprocess(args):
     logprob_lists = map(lambda x: x.numpy(), dat[0])
     token_lists = dat[1]
 
+    if "adaptive" in args.perps_dir:
+        pass
+
     df = make_df(
         logprob_lists,
         token_lists,

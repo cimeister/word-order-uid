@@ -71,8 +71,8 @@ with open(args.test_file, "r") as f, MosesSentenceSplitter(args.lang) as sent_sp
     # each line is a document, composed of one or more sentences
     for l in lines:
         if len(l) == 0:
-            lprobs.append(lprobs_buff)
-            tokens.append(tokens_buff)
+            lprobs.append(lprobs_buff[:])
+            tokens.append(tokens_buff[:])
             lprobs_buff = []
             tokens_buff = []
             continue
