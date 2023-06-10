@@ -1016,7 +1016,8 @@ rule eval_language_models_diff_sizes_adaptive:
     input:
         "data/checkpoint-cf-bpe-diff-sizes/{num_toks}/{model_seed}/{language}/{variant}/checkpoint_best.pt",
         "data/wiki40b-txt-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/{language}.test",
-        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
+        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin",
+        "data/per_example_perp.py"
     output:
         "evaluation/perps-cf-diff-sizes/adaptive/{lr}/{num_toks}/{model_seed}/{language}-{variant}.pt"
     wildcard_constraints:
@@ -1146,6 +1147,7 @@ EVAL_RESULTS_DIR_sentlevel = "evaluation/perps-cf-sentlevel"
 rule convert_doc_to_sent:
     input:
         expand(f"{CF_BPE_DATA_DIR_diff_sizes}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
+        "data/convert_doc_to_sent.py"
     output:
         expand(f"{CF_BPE_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
     log:
@@ -1257,7 +1259,8 @@ rule eval_language_models_sentlevel:
     input:
         f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt",
         f"data/wiki40b-txt-cf-bpe-diff-sizes/{{num_toks}}/{{language}}/{{variant}}/{{language}}.test",
-        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin"
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin",
+        "data/per_example_perp_sentlevel.py"
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
     wildcard_constraints:
