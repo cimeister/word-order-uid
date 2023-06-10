@@ -73,8 +73,8 @@ with open(args.test_file, "r") as f, MosesSentenceSplitter(args.lang) as sent_sp
         if len(l) == 0:
             lprobs.append(lprobs_buff)
             tokens.append(tokens_buff)
-            lprobs_buff.clear()
-            tokens_buff.clear()
+            lprobs_buff = []
+            tokens_buff = []
             continue
         for sentence in sent_split([l]):
             if custom_lm_hub.encode(sentence).size(0) > custom_lm_hub.max_positions - 2:
