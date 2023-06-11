@@ -12,7 +12,7 @@ if __name__ == "__main__":
     with open(args.inputfile) as f_in, open(args.outputfile, "w") as f_out:
         for doc in f_in:
             sentences = doc.split(".")
-            sentences = [s for s in sentences if len(s) > 0]
+            sentences = [s for s in sentences if len(s.strip()) > 0]
             sentences = [s.strip() + " .\n" for s in sentences]
             f_out.writelines(sentences)
 
