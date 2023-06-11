@@ -1151,6 +1151,7 @@ rule convert_doc_to_sent:
     output:
         expand(f"{CF_BPE_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
     log:
+        f"{LOG_DIR}/log_convert_doc_to_sent_{{language}}_{{variant}}_{{num_toks}}.out"
     resources:
         num_cpus=1,
         num_gpus=0,
