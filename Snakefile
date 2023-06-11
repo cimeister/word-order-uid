@@ -1152,17 +1152,20 @@ rule convert_doc_to_sent:
         expand(f"{CF_BPE_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{{{language}}}}.{{part}}", part=parts),
     log:
     resources:
-        time="01:00",
-        time_slurm="01:00:00",
         num_cpus=1,
         num_gpus=0,
-        select="",
-        rusage="rusage[mem=2000,ngpus_excl_p=0]",
-        mem_per_cpu="2g",
-        mem_per_gpu=0,
-        runtime=60,
-        mem_mb_per_cpu=2000,
-        slurm_account="public",
+        runtime=1440,
+        mem_per_cpu="30GB",
+        mem_per_gpu="0",
+        # time="01:00",
+        # time_slurm="01:00:00",
+        # select="",
+        # rusage="rusage[mem=2000,ngpus_excl_p=0]",
+        # mem_per_cpu="2g",
+        # mem_per_gpu=0,
+        # runtime=60,
+        # mem_mb_per_cpu=2000,
+        # slurm_account="public",
     shell:
         f"""
         module load gcc/6.3.0
@@ -1191,17 +1194,18 @@ rule prepare_fairseq_data_sentlevel:
     output:
         expand(f"{PREPROCESSED_DATA_DIR_sentlevel}/{{{{num_toks}}}}/{{{{language}}}}/{{{{variant}}}}/{{part}}.bin", part=parts),
     resources:
-        time="04:00",
-        time_slurm="04:00:00",
         num_cpus=1,
         num_gpus=0,
-        select="",
-        rusage="rusage[mem=8000,ngpus_excl_p=0]",
-        mem_per_cpu="8g",
-        mem_per_gpu=0,
-        runtime=240,
-        mem_mb_per_cpu=8000,
-        slurm_account="public",
+        runtime=60,
+        mem_per_cpu="8GB",
+        mem_per_gpu="0",
+        # select="",
+        # rusage="rusage[mem=8000,ngpus_excl_p=0]",
+        # mem_per_cpu="8g",
+        # mem_per_gpu=0,
+        # runtime=240,
+        # mem_mb_per_cpu=8000,
+        # slurm_account="public",
     log:
         f"{LOG_DIR}/log_preprocess_{{language}}_{{variant}}_{{num_toks}}.out"
     shell:
