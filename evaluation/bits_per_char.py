@@ -11,7 +11,7 @@ if __name__ == "__main__":
     patt = "perps-cf-diff-sizes/20000000/1/*-REAL_REAL_full_results.csv"
 
     for filename in glob.glob(patt):
-        lang = re.search("..?=(-REAL_REAL)", filename)
+        lang = re.search("..(?=-REAL_REAL)", filename)
         assert lang
         lang = lang.match
         df = pd.read_csv(filename)
