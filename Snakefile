@@ -1237,7 +1237,7 @@ rule train_language_models_sentlevel:
         num_cpus=1,
         num_gpus=1,
         runtime=1440,
-        mem_per_cpu="30GB",
+        mem_per_cpu="10GB",
         mem_per_gpu="10GB",
         # select="select[gpu_mtotal0>=10000]",
         # rusage="rusage[mem=10000,ngpus_excl_p=1]",
