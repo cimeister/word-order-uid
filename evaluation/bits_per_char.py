@@ -16,6 +16,6 @@ if __name__ == "__main__":
         lang = lang.group(0)
         df = pd.read_csv(filename)
         sum_surp = df.surprisal.sum()
-        sum_charlens = df.token.asstype(str).apply(len).sum()
+        sum_charlens = df.token.astype(str).apply(len).sum()
         bits_per_char = sum_surp / sum_charlens
         print(f"Lang: {lang}, Bits per Char: {bits_per_char}")
