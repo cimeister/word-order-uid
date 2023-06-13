@@ -13,7 +13,7 @@ if __name__ == "__main__":
     for filename in glob.glob(patt):
         lang = re.search("..(?=-REAL_REAL)", filename)
         assert lang
-        lang = lang.match
+        lang = lang.group(0)
         df = pd.read_csv(filename)
         sum_surp = df.surprisal.sum()
         sum_charlens = df.token.apply(len).sum()
