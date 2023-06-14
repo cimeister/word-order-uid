@@ -1064,37 +1064,37 @@ rule eval_language_models_diff_sizes_all:
         variant=["REAL_REAL"], 
         lr=[0.02, 0.2, 2, 20])
 
-rule postprocess_diff_sizes:
-    input:
-        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
-    output:
-        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv",
-        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full_results.csv",
-    resources:
-        time="4:00",
-        time_slurm="04:00:00",
-        num_cpus=1,
-        num_gpus=0,
-        select="",
-        rusage="rusage[mem=16000,ngpus_excl_p=0]",
-        mem_per_cpu="16g",
-        mem_per_gpu=0,
-    log:
-        f"{LOG_DIR}/log_postprocess_diff_sizes_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}.out"
-    shell:
-        """
-        module load gcc/6.3.0
-        module load python_gpu/3.8.5 hdf5 eth_proxy
-        module load geos libspatialindex
-        cd evaluation
-        python postprocess_eval_results.py \
-            --inputfile perps-cf-diff-sizes/{wildcards.num_toks}/{wildcards.model_seed}/{wildcards.language}-{wildcards.variant}.pt \
-            --language {wildcards.language} \
-            --variant {wildcards.variant} \
-            --num_toks {wildcards.num_toks} \
-            --model_seed {wildcards.model_seed} \
-            --dataset wiki40b
-        """
+# rule postprocess_diff_sizes:
+#     input:
+#         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
+#     output:
+#         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.csv",
+#         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}_full_results.csv",
+#     resources:
+#         time="4:00",
+#         time_slurm="04:00:00",
+#         num_cpus=1,
+#         num_gpus=0,
+#         select="",
+#         rusage="rusage[mem=16000,ngpus_excl_p=0]",
+#         mem_per_cpu="16g",
+#         mem_per_gpu=0,
+#     log:
+#         f"{LOG_DIR}/log_postprocess_diff_sizes_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}.out"
+#     shell:
+#         """
+#         module load gcc/6.3.0
+#         module load python_gpu/3.8.5 hdf5 eth_proxy
+#         module load geos libspatialindex
+#         cd evaluation
+#         python postprocess_eval_results.py \
+#             --inputfile perps-cf-diff-sizes/{wildcards.num_toks}/{wildcards.model_seed}/{wildcards.language}-{wildcards.variant}.pt \
+#             --language {wildcards.language} \
+#             --variant {wildcards.variant} \
+#             --num_toks {wildcards.num_toks} \
+#             --model_seed {wildcards.model_seed} \
+#             --dataset wiki40b
+#         """
 
 rule postprocess_diff_sizes_all:
     input:
