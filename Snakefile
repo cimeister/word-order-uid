@@ -1377,14 +1377,11 @@ rule postprocess_gc:
         "evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}.csv",
         "evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}_full_results.csv",
     resources:
-        time="4:00",
-        time_slurm="04:00:00",
         num_cpus=1,
         num_gpus=0,
-        select="",
-        rusage="rusage[mem=16000,ngpus_excl_p=0]",
-        mem_per_cpu="16g",
+        mem_per_cpu="10G",
         mem_per_gpu=0,
+        runtime=60,
     wildcard_constraints:
         num_toks="\d+"
     log:
