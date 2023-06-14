@@ -1276,7 +1276,7 @@ rule eval_language_models_sentlevel:
         num_gpus=1,
         mem_per_cpu="10G",
         mem_per_gpu="10G",
-        runtime=120,
+        runtime=240,
         # time="4:00",
         # time_slurm="04:00:00",
         # select="select[gpu_mtotal0>=10000]",
