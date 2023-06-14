@@ -221,11 +221,24 @@ def postprocess(args):
     file = args.inputfile
 
     dat = torch.load(file)
-    logprob_lists = map(lambda x: x.numpy(), dat[0])
+    logprob_lists = dat[0]
     token_lists = dat[1]
 
-    if "adaptive" in args.perps_dir:
-        pass
+    if "sentlevel" in args.perps_dir:
+        # structure of sentlevel perps file
+        # [lprobs, tokens]
+        # lprobs = [lprobs_buff_1, lprobs_buff2, ...] # document level
+        # lprobs_buff_i = [positional_scores_1, ...] # sentence level
+        a = []
+        for doc in logprob_lists:
+            a.append(np.concatenate(doc, None))
+        b = []
+        for doc in token_lists:
+            b.append(np.concatenate(doc, None))
+        logprob_lists = a
+        token_lists = b
+    else:
+        logprob_lists = map(lambda x: x.numpy(), logprob_lists)
 
     df = make_df(
         logprob_lists,
@@ -515,6 +528,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_toks")
     parser.add_argument("--model_seed")
     parser.add_argument("--dataset")
+    parser.add_argument("--perps_dir")
     args = parser.parse_args()
 
     postprocess(args)
