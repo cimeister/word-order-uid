@@ -1,5 +1,6 @@
 
 languages = ["en", "tr", "hu", "fr", "de", "ru", "vi", "id", "hi", "fa"]
+languages_9 = ["en", "tr", "hu", "de", "ru", "vi", "id", "hi", "fa"]
 languages_100m = ["en"]
 languages_cc100 = ["en", "tr", "hi", "ru", "hu"]
 variants = [
@@ -1352,6 +1353,20 @@ rule eval_language_models_sentlevel_all:
         model_seed=[1],
         lr=[0.02, 0.2, 2, 20],
         language=languages,
+        variant=["REAL_REAL"]),
+
+rule eval_language_models_sentlevel_9_langs:
+    input:
+        expand(f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
+        num_toks=[20000000], 
+        model_seed=[1],
+        language=languages_9,
+        variant=["REAL_REAL"]),
+        expand(f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
+        num_toks=[20000000], 
+        model_seed=[1],
+        lr=[0.02, 0.2, 2, 20],
+        language=languages_9,
         variant=["REAL_REAL"]),
 
 
