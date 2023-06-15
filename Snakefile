@@ -986,7 +986,8 @@ rule eval_language_models_diff_sizes:
     output:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1022,7 +1023,8 @@ rule eval_language_models_diff_sizes_adaptive:
     output:
         "evaluation/perps-cf-diff-sizes/adaptive/{lr}/{num_toks}/{model_seed}/{language}-{variant}.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1058,7 +1060,8 @@ rule eval_language_models_diff_sizes_small:
     output:
         "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}-small.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1095,7 +1098,8 @@ rule eval_language_models_diff_sizes_adaptive_small:
     output:
         "evaluation/perps-cf-diff-sizes/adaptive/{lr}/{num_toks}/{model_seed}/{language}-{variant}-small.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         time="4:00",
         time_slurm="04:00:00",
@@ -1344,7 +1348,8 @@ rule eval_language_models_sentlevel:
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         num_cpus=1,
         num_gpus=1,
@@ -1376,7 +1381,8 @@ rule eval_language_models_sentlevel_adaptive:
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         num_cpus=1,
         num_gpus=1,
@@ -1410,7 +1416,8 @@ rule eval_language_models_sentlevel_small:
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}-small.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         num_cpus=1,
         num_gpus=1,
@@ -1444,7 +1451,8 @@ rule eval_language_models_sentlevel_small_adaptive:
     output:
         f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}-small.pt"
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        variant="[_A-Z]+",
     resources:
         num_cpus=1,
         num_gpus=1,
