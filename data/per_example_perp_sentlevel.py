@@ -14,7 +14,7 @@ import torch
 from fairseq.models.transformer_lm import TransformerLanguageModel
 from mosestokenizer import MosesTokenizer, MosesSentenceSplitter
 from torch.optim import Adam
-import tqdm
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
