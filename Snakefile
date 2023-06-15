@@ -1050,6 +1050,80 @@ rule eval_language_models_diff_sizes_adaptive:
             --adapt_lr {{wildcards.lr}} &> {BASE_DIR}/{{log}}
         """
 
+rule eval_language_models_diff_sizes_small:
+    input:
+        "data/checkpoint-cf-bpe-diff-sizes/{num_toks}/{model_seed}/{language}/{variant}/checkpoint_best.pt",
+        "data/wiki40b-txt-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/{language}.test",
+        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin"
+    output:
+        "evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}-small.pt"
+    wildcard_constraints:
+        num_toks="\d+"
+    resources:
+        time="4:00",
+        time_slurm="04:00:00",
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="10g",
+        mem_per_gpu="10g",
+        runtime=240,
+    log:
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_small.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python per_example_perp.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}-small.pt \
+            --n_docs 200 > {BASE_DIR}/{{log}}
+        """
+
+rule eval_language_models_diff_sizes_adaptive_small:
+    input:
+        "data/checkpoint-cf-bpe-diff-sizes/{num_toks}/{model_seed}/{language}/{variant}/checkpoint_best.pt",
+        "data/wiki40b-txt-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/{language}.test",
+        "data/data-bin-cf-bpe-diff-sizes/{num_toks}/{language}/{variant}/test.bin",
+        "data/per_example_perp.py"
+    output:
+        "evaluation/perps-cf-diff-sizes/adaptive/{lr}/{num_toks}/{model_seed}/{language}-{variant}-small.pt"
+    wildcard_constraints:
+        num_toks="\d+"
+    resources:
+        time="4:00",
+        time_slurm="04:00:00",
+        num_cpus=1,
+        num_gpus=1,
+        select="select[gpu_mtotal0>=10000]",
+        rusage="rusage[mem=30000,ngpus_excl_p=1]",
+        mem_per_cpu="10g",
+        mem_per_gpu="10g",
+        runtime=240,
+    log:
+        f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_adaptive_{{lr}}_small.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_diff_sizes}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python per_example_perp.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_diff_sizes}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_diff_sizes}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}-small.pt \
+            --adapt_lr {{wildcards.lr}} \
+            --n_docs 200 &> {BASE_DIR}/{{log}}
+        """
+
 rule eval_language_models_diff_sizes_all:
     input:
         expand("evaluation/perps-cf-diff-sizes/{num_toks}/{model_seed}/{language}-{variant}.pt",
@@ -1277,13 +1351,6 @@ rule eval_language_models_sentlevel:
         mem_per_cpu="10G",
         mem_per_gpu="10G",
         runtime=720,
-        # time="4:00",
-        # time_slurm="04:00:00",
-        # select="select[gpu_mtotal0>=10000]",
-        # rusage="rusage[mem=10000,ngpus_excl_p=1]",
-        # mem_mb_per_cpu=16000,
-        # slurm_extra="--gres=gpu:1",
-        # slurm_account="public",
     log:
         f"{LOG_DIR}/log_eval_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}.out"
     shell:
@@ -1316,13 +1383,6 @@ rule eval_language_models_sentlevel_adaptive:
         mem_per_cpu="10G",
         mem_per_gpu="10G",
         runtime=720,
-        # time="4:00",
-        # time_slurm="04:00:00",
-        # select="select[gpu_mtotal0>=10000]",
-        # rusage="rusage[mem=10000,ngpus_excl_p=1]",
-        # mem_mb_per_cpu=16000,
-        # slurm_extra="--gres=gpu:1",
-        # slurm_account="public",
     log:
         f"{LOG_DIR}/log_eval_sentlevel_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_adaptive_{{lr}}.out"
     shell:
@@ -1338,6 +1398,75 @@ rule eval_language_models_sentlevel_adaptive:
             --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
             --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}.pt \
             --lang {{wildcards.language}} \
+            --adapt_lr {{wildcards.lr}} &> {BASE_DIR}/{{log}}
+        """
+
+rule eval_language_models_sentlevel_small:
+    input:
+        f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt",
+        f"data/wiki40b-txt-cf-bpe-diff-sizes/{{num_toks}}/{{language}}/{{variant}}/{{language}}.test",
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin",
+        "data/per_example_perp_sentlevel.py"
+    output:
+        f"{EVAL_RESULTS_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}-small.pt"
+    wildcard_constraints:
+        num_toks="\d+"
+    resources:
+        num_cpus=1,
+        num_gpus=1,
+        mem_per_cpu="10G",
+        mem_per_gpu="10G",
+        runtime=720,
+    log:
+        f"{LOG_DIR}/log_eval_sentlevel_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_small.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python per_example_perp_sentlevel.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}-small.pt \
+            --lang {{wildcards.language}} \
+            --n_docs 200 &> {BASE_DIR}/{{log}}
+        """
+
+rule eval_language_models_sentlevel_small_adaptive:
+    input:
+        f"{CHECKPOINT_DIR_sentlevel}/{{num_toks}}/{{model_seed}}/{{language}}/{{variant}}/checkpoint_best.pt",
+        f"data/wiki40b-txt-cf-bpe-diff-sizes/{{num_toks}}/{{language}}/{{variant}}/{{language}}.test",
+        f"{PREPROCESSED_DATA_DIR_sentlevel}/{{num_toks}}/{{language}}/{{variant}}/test.bin",
+        "data/per_example_perp_sentlevel.py",
+    output:
+        f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}-small.pt"
+    wildcard_constraints:
+        num_toks="\d+"
+    resources:
+        num_cpus=1,
+        num_gpus=1,
+        mem_per_cpu="10G",
+        mem_per_gpu="10G",
+        runtime=720,
+    log:
+        f"{LOG_DIR}/log_eval_sentlevel_{{language}}_{{variant}}_{{num_toks}}_{{model_seed}}_adaptive_{{lr}}_small.out"
+    shell:
+        f"""
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        mkdir -p {EVAL_RESULTS_DIR_sentlevel}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}
+        cd data
+        python per_example_perp_sentlevel.py \
+            --checkpoint_dir {BASE_DIR}/{CHECKPOINT_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --data_dir {BASE_DIR}/{PREPROCESSED_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}} \
+            --test_file {BASE_DIR}/{CF_BPE_DATA_DIR_sentlevel}/{{wildcards.num_toks}}/{{wildcards.language}}/{{wildcards.variant}}/{{wildcards.language}}.test \
+            --out_file {BASE_DIR}/{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{wildcards.lr}}/{{wildcards.num_toks}}/{{wildcards.model_seed}}/{{wildcards.language}}-{{wildcards.variant}}-small.pt \
+            --lang {{wildcards.language}} \
+            --n_docs 200 \
             --adapt_lr {{wildcards.lr}} &> {BASE_DIR}/{{log}}
         """
 
@@ -1402,9 +1531,47 @@ rule postprocess_gc:
             --dataset wiki40b
         """
 
+rule postprocess_gc_small:
+    input:
+        "evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}-small.pt"
+    output:
+        "evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}-small.csv",
+        "evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}-small_full_results.csv",
+    resources:
+        num_cpus=1,
+        num_gpus=0,
+        mem_per_cpu="10G",
+        mem_per_gpu=0,
+        runtime=60,
+    wildcard_constraints:
+        num_toks="\d+"
+    log:
+        f"{LOG_DIR}/log_postprocess_{{perps_dir}}_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}_small.out"
+    shell:
+        """
+        module load gcc/6.3.0
+        module load python_gpu/3.8.5 hdf5 eth_proxy
+        module load geos libspatialindex
+        cd evaluation
+        python postprocess_eval_results.py \
+            --inputfile {wildcards.perps_dir}/{wildcards.num_toks}/{wildcards.model_seed}/{wildcards.language}-{wildcards.variant}-small.pt \
+            --language {wildcards.language} \
+            --variant {wildcards.variant} \
+            --num_toks {wildcards.num_toks} \
+            --model_seed {wildcards.model_seed} \
+            --perps_dir {wildcards.perps_dir} \
+            --dataset wiki40b
+        """
+
 rule postprocess_gc_all:
     input:
         expand("evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}.csv",
+        perps_dir=["perps-cf-diff-sizes", "perps-cf-sentlevel", "perps-cf-diff-sizes/adaptive/0.2", "perps-cf-diff-sizes/adaptive/0.02", "perps-cf-diff-sizes/adaptive/2", "perps-cf-diff-sizes/adaptive/20", "perps-cf-sentlevel/adaptive/0.2", "perps-cf-sentlevel/adaptive/0.02", "perps-cf-sentlevel/adaptive/2", "perps-cf-sentlevel/adaptive/20"],
+        num_toks=[20000000], model_seed=[1], language=languages, variant=["REAL_REAL"])
+
+rule postprocess_gc_small_all:
+    input:
+        expand("evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}-small.csv",
         perps_dir=["perps-cf-diff-sizes", "perps-cf-sentlevel", "perps-cf-diff-sizes/adaptive/0.2", "perps-cf-diff-sizes/adaptive/0.02", "perps-cf-diff-sizes/adaptive/2", "perps-cf-diff-sizes/adaptive/20", "perps-cf-sentlevel/adaptive/0.2", "perps-cf-sentlevel/adaptive/0.02", "perps-cf-sentlevel/adaptive/2", "perps-cf-sentlevel/adaptive/20"],
         num_toks=[20000000], model_seed=[1], language=languages, variant=["REAL_REAL"])
 

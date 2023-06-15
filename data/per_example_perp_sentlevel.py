@@ -42,6 +42,7 @@ parser.add_argument(
 parser.add_argument(
     "--lang", help="ISO code of language, used for instantiating MosesSentenceSplitter"
 )
+parser.add_argument("--n_docs", type=int)
 args = parser.parse_args()
 
 # Set seeds
@@ -68,36 +69,44 @@ with open(args.test_file, "r") as f, MosesSentenceSplitter(args.lang) as sent_sp
     perps = []
     lprobs_buff, tokens_buff = [], []
 
-    # each line is a document, composed of one or more sentences
+    doc_count = 0
+
+    # each line is a sentence, blank lines are document boundaries
     for l in lines:
+
+        if doc_count >= args.n_docs:
+            break
+
         if len(l) == 0:
             lprobs.append(lprobs_buff[:])
             tokens.append(tokens_buff[:])
             lprobs_buff = []
             tokens_buff = []
+            doc_count += 1
             continue
-        for sentence in sent_split([l]):
-            if custom_lm_hub.encode(sentence).size(0) > custom_lm_hub.max_positions - 2:
-                sentence = " ".join(sentence.split()[: custom_lm_hub.max_positions - 2])
-            out = custom_lm_hub.score(sentence, shorten_method="truncate")
-            perps.append(out["positional_scores"].mean().neg().exp().item())
-            lprobs_buff.append(out["positional_scores"])
-            tokens_buff.append([custom_lm_hub.tgt_dict[i] for i in out["tokens"]])
 
-            if args.adapt_lr:
-                custom_lm.train()
-                prev_output_tokens = torch.tensor(
-                    [custom_lm_hub.tgt_dict.eos()] + out["tokens"].tolist()
-                )
-                custom_lm.zero_grad()
-                logits, _ = custom_lm(
-                    prev_output_tokens.unsqueeze(0), return_all_hiddens=False
-                )
-                logp = custom_lm.get_normalized_probs(logits, log_probs=True)
-                loss = -logp[range(out["tokens"].size(0)), out["tokens"]].mean()
-                loss.backward()
-                optimizer.step()
-                custom_lm.eval()
+        sentence = l
+        if custom_lm_hub.encode(sentence).size(0) > custom_lm_hub.max_positions - 2:
+            sentence = " ".join(sentence.split()[: custom_lm_hub.max_positions - 2])
+        out = custom_lm_hub.score(sentence, shorten_method="truncate")
+        perps.append(out["positional_scores"].mean().neg().exp().item())
+        lprobs_buff.append(out["positional_scores"])
+        tokens_buff.append([custom_lm_hub.tgt_dict[i] for i in out["tokens"]])
+
+        if args.adapt_lr:
+            custom_lm.train()
+            prev_output_tokens = torch.tensor(
+                [custom_lm_hub.tgt_dict.eos()] + out["tokens"].tolist()
+            )
+            custom_lm.zero_grad()
+            logits, _ = custom_lm(
+                prev_output_tokens.unsqueeze(0), return_all_hiddens=False
+            )
+            logp = custom_lm.get_normalized_probs(logits, log_probs=True)
+            loss = -logp[range(out["tokens"].size(0)), out["tokens"]].mean()
+            loss.backward()
+            optimizer.step()
+            custom_lm.eval()
 
     if lprobs_buff:
         lprobs.append(lprobs_buff)

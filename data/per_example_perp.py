@@ -39,6 +39,7 @@ parser.add_argument(
 parser.add_argument(
     "--seed", help="Random seed for reproducibility", type=int, default=0
 )
+parser.add_argument("--n_docs", type=int)
 args = parser.parse_args()
 
 
@@ -65,7 +66,7 @@ with open(args.test_file, "r") as f:
     count = 0
     perps = []
     tokens = []
-    for l in lines:
+    for l in lines[: args.n_docs]:
         if custom_lm_hub.encode(l).size(0) > custom_lm_hub.max_positions - 2:
             l = " ".join(l.split()[: custom_lm_hub.max_positions - 2])
         out = custom_lm_hub.score(l, shorten_method="truncate")
