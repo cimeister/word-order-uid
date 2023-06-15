@@ -14,6 +14,7 @@ import random
 import torch
 from fairseq.models.transformer_lm import TransformerLanguageModel
 from torch.optim import Adam
+import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -66,7 +67,7 @@ with open(args.test_file, "r") as f:
     count = 0
     perps = []
     tokens = []
-    for l in lines[: args.n_docs]:
+    for l in tqdm(lines[: args.n_docs]):
         if custom_lm_hub.encode(l).size(0) > custom_lm_hub.max_positions - 2:
             l = " ".join(l.split()[: custom_lm_hub.max_positions - 2])
         out = custom_lm_hub.score(l, shorten_method="truncate")

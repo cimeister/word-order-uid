@@ -14,6 +14,7 @@ import torch
 from fairseq.models.transformer_lm import TransformerLanguageModel
 from mosestokenizer import MosesTokenizer, MosesSentenceSplitter
 from torch.optim import Adam
+import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -72,7 +73,7 @@ with open(args.test_file, "r") as f, MosesSentenceSplitter(args.lang) as sent_sp
     doc_count = 0
 
     # each line is a sentence, blank lines are document boundaries
-    for l in lines:
+    for l in tqdm(lines):
 
         if doc_count >= args.n_docs:
             break
