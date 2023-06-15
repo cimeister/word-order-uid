@@ -1512,7 +1512,8 @@ rule postprocess_gc:
         mem_per_gpu=0,
         runtime=60,
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        language="[a-z][a-z]",
     log:
         f"{LOG_DIR}/log_postprocess_{{perps_dir}}_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}.out"
     shell:
@@ -1544,7 +1545,8 @@ rule postprocess_gc_small:
         mem_per_gpu=0,
         runtime=60,
     wildcard_constraints:
-        num_toks="\d+"
+        num_toks="\d+",
+        language="[a-z][a-z]",
     log:
         f"{LOG_DIR}/log_postprocess_{{perps_dir}}_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}_small.out"
     shell:
