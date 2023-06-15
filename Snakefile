@@ -1522,6 +1522,7 @@ rule postprocess_gc:
     wildcard_constraints:
         num_toks="\d+",
         language="[a-z][a-z]",
+        variant="[_A-Z]+",
     log:
         f"{LOG_DIR}/log_postprocess_{{perps_dir}}_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}.out"
     shell:
@@ -1555,6 +1556,7 @@ rule postprocess_gc_small:
     wildcard_constraints:
         num_toks="\d+",
         language="[a-z][a-z]",
+        variant="[_A-Z]+",
     log:
         f"{LOG_DIR}/log_postprocess_{{perps_dir}}_{{num_toks}}_{{model_seed}}_{{language}}_{{variant}}_small.out"
     shell:
