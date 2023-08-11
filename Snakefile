@@ -1140,7 +1140,7 @@ rule eval_language_models_diff_sizes_all:
         model_seed=[1], 
         language=languages, 
         variant=["REAL_REAL"], 
-        lr=[0.02, 0.2, 2, 20])
+        lr=[0.001, 0.005, 0.02, 0.2, 2, 20])
 
 # rule postprocess_diff_sizes:
 #     input:
@@ -1488,7 +1488,7 @@ rule eval_language_models_sentlevel_all:
         expand(f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
         num_toks=[20000000], 
         model_seed=[1],
-        lr=[0.02, 0.2, 2, 20],
+        lr=[0.001, 0.005, 0.02, 0.2, 2, 20],
         language=languages,
         variant=["REAL_REAL"]),
 
@@ -1502,7 +1502,7 @@ rule eval_language_models_sentlevel_9_langs:
         expand(f"{EVAL_RESULTS_DIR_sentlevel}/adaptive/{{lr}}/{{num_toks}}/{{model_seed}}/{{language}}-{{variant}}.pt", 
         num_toks=[20000000], 
         model_seed=[1],
-        lr=[0.02, 0.2, 2, 20],
+        lr=[0.001, 0.005, 0.02, 0.2, 2, 20],
         language=languages_9,
         variant=["REAL_REAL"]),
 
@@ -1584,7 +1584,21 @@ rule postprocess_gc_all:
 rule postprocess_gc_small_all:
     input:
         expand("evaluation/{perps_dir}/{num_toks}/{model_seed}/{language}-{variant}-small.csv",
-        perps_dir=["perps-cf-diff-sizes", "perps-cf-sentlevel", "perps-cf-diff-sizes/adaptive/0.2", "perps-cf-diff-sizes/adaptive/0.02", "perps-cf-diff-sizes/adaptive/2", "perps-cf-diff-sizes/adaptive/20", "perps-cf-sentlevel/adaptive/0.2", "perps-cf-sentlevel/adaptive/0.02", "perps-cf-sentlevel/adaptive/2", "perps-cf-sentlevel/adaptive/20"],
+        perps_dir=[
+            "perps-cf-diff-sizes", 
+            "perps-cf-sentlevel", 
+            "perps-cf-diff-sizes/adaptive/0.001", 
+            "perps-cf-diff-sizes/adaptive/0.005", 
+            "perps-cf-diff-sizes/adaptive/0.02", 
+            "perps-cf-diff-sizes/adaptive/0.2", 
+            "perps-cf-diff-sizes/adaptive/2", 
+            "perps-cf-diff-sizes/adaptive/20", 
+            "perps-cf-sentlevel/adaptive/0.001", 
+            "perps-cf-sentlevel/adaptive/0.005", 
+            "perps-cf-sentlevel/adaptive/0.02", 
+            "perps-cf-sentlevel/adaptive/0.2", 
+            "perps-cf-sentlevel/adaptive/2", 
+            "perps-cf-sentlevel/adaptive/20"],
         num_toks=[20000000], model_seed=[1], language=languages, variant=["REAL_REAL"])
 
 ######################################
